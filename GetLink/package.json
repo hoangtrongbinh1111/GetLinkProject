@@ -1,0 +1,28 @@
+{
+  "name": "redissss",
+  "version": "1.0.0",
+  "description": "hello",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "api-benchmark": "^1.0.1",
+    "apify": "^2.1.0",
+    "axios": "^0.24.0",
+    "bluebird": "^3.7.2",
+    "cheerio": "^1.0.0-rc.10",
+    "chromedriver": "^96.0.0",
+    "crypto": "^1.0.1",
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "node-html-parser": "^5.1.0",
+    "puppeteer": "^12.0.1",
+    "redis": "^3.1.2",
+    "request": "^2.88.2",
+    "selenium-webdriver": "^4.1.0"
+  },
+  "author": "binh",
+  "license": "ISC"
+}
