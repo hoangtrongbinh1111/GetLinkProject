@@ -7,9 +7,10 @@ function App() {
   const onSubmit = () => {
     setLoading(false)
     const linkVal = document.getElementById("linkVal").value
-    const reqUrl = `http://207.148.71.10:3001/test?linkImage=${linkVal}`
+    const reqUrl = `http://127.0.0.1:3001/test?linkImage=${linkVal}`
     axios.get(reqUrl).then((res) => {
-      setLinkDownload(res)
+      console.log(res);
+      setLinkDownload(res.data)
       setLoading(true)
     }).catch((error)=>{
       console.error(error)
