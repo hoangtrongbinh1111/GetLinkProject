@@ -41,6 +41,7 @@ app.get("/test", async (req, res) => {
       });
     await cluster.task(async ({ page, data: url }) => {
         const data = await checkItem("data.json",count_item,temp_download,linkImage);
+        console.log(data)
         if (data[0] === 1)
         {
             console.log("dung")
@@ -54,7 +55,7 @@ app.get("/test", async (req, res) => {
         await Promise.all([
             page.click('.login')
         ]);
-        // await page.screenshot({ path: 'cap1.png' });
+        await page.screenshot({ path: 'cap1.png' });
         await Promise.all([
             page.click('.base-public-rlg-tab-login')
         ]);
@@ -167,16 +168,24 @@ var download = function (uri, filename, callback) {
 const checkItem = async function(name_file,c_item,t_d,L_I) {
     const checkdata =await readFile(name_file)
     obj = JSON.parse(checkdata);
-    for(i=0; i<obj.data.length; i++)
-    {
-        console.log("link",obj.data[i].Link_Html)
-        if (obj.data[i].Link_Html===L_I)
+    // for(i=0; i<obj.data.length; i++)
+    // {
+    //     console.log("link",obj.data[i].Link_Html)
+    //     if (obj.data[i].Link_Html===L_I)
+    //     {
+    //         c_item = 1;
+    //         t_d = obj.data[i].Link_Download;   
+    //         return [c_item,t_d];
+    //     }    
+    // }
+    await obj.data.map(item => {
+        if (item.Link_Html===L_I)
         {
             c_item = 1;
-            t_d = obj.data[i].Link_Download;   
+            t_d = item.Link_Download;   
             return [c_item,t_d];
-        }    
-    }
+        } 
+    });
     return [c_item,t_d];
   }
 
