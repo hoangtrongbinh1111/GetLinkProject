@@ -6,8 +6,9 @@ var fs = require('fs'),
     request = require('request');
 const { flatten } = require("cheerio/lib/options");
 const { Cluster } = require('puppeteer-cluster');
-
 const app = express();
+
+
 // var page
 // main()
 app.get("/", async (req, res) => {
@@ -38,16 +39,20 @@ app.get("/test", async (req, res) => {
     const cluster = await Cluster.launch({
         concurrency: Cluster.CONCURRENCY_CONTEXT,
         maxConcurrency: 2,
-      });
+        puppeteerOptions: {
+            headless: true,
+            ignoreHTTPSErrors: true
+        },
+    });
     await cluster.task(async ({ page, data: url }) => {
-        const data = await checkItem("data.json",count_item,temp_download,linkImage);
-        console.log(data)
-        if (data[0] === 1)
-        {
-            console.log("dung")
-            return res.status(200).send(data[1]);
-        }
-        await page.setViewport({ width: 1600, height: 1600 });
+        // const data = await checkItem("data.json",count_item,temp_download,linkImage);
+        // console.log(data)
+        // if (data[0] === 1)
+        // {
+        //     console.log("dung")
+        //     return res.status(200).send(data[1]);
+        // }
+        await page.setViewport({ width: 1920, height: 1600 });
         await page.setDefaultNavigationTimeout(0);
 
         await page.goto('https://vn.pikbest.com/'); // wait until page load
@@ -56,9 +61,7 @@ app.get("/test", async (req, res) => {
             page.click('.login')
         ]);
         await page.screenshot({ path: 'cap1.png' });
-        await Promise.all([
-            page.click('.base-public-rlg-tab-login')
-        ]);
+        await page.click('.base-public-rlg-tab-login');
         //await page.screenshot({ path: 'cap2.png' });
         // await page.setViewport({width: 1200, height: 720});
         await page.type('#base-public-login-email', 'mapj8420@yahoo.com');
@@ -69,67 +72,103 @@ app.get("/test", async (req, res) => {
         ]);
         await page.waitForNavigation();
         const title = `image_${crypto.randomBytes(20).toString('hex')}.jpeg`
-        console.log(linkImage)
+        console.log(1, linkImage)
         // console.log("title: ",title)
         //await page.screenshot({ path: 'cap3.png' });
         try {
-            await page.goto(linkImage, { waitUntil: 'load', timeout: 0 })
+            await page.goto(linkImage, { waitUntil: 'load', timeout: 0 });
+            await page.screenshot({ path: 'cap1.png' });
             //await page.screenshot({ path: 'cap4.png' });
             await page.$eval('a.dlbtn.dljpg.ga-click', elem => elem.click());
             //await page.screenshot({ path: 'cap5.png' });
             await page.waitForSelector('.download-btn')
             let linkImg = await page.$eval('.download-btn', anchor => anchor.getAttribute('href'));
-            //await page.screenshot({ path: 'cap6.png' });
-            console.time('test');
-            let linkImage_dl = linkImage.replace('//vn.', '//img.');
-            linkImage_dl = linkImage_dl.replace('.html','.png');
-            linkImage_dl = linkImage_dl.replace('qianku-','qianku/');
-            linkImage_dl = linkImage_dl.replace('qiantu-','qiantu/');
+            console.log(2, linkImg);
+            // await page.setRequestInterception(true);
+            // page.on('response', response => {
+            //     if (response.url().includes("m=AjaxDownload&a=open"))
+            //       console.log("response code: ", response.json());
+            //       // do something here
+            //   });
             
-            let linkImg_URI = encodeURI(linkImage_dl)
-            console.log(linkImg_URI)
-            // await page.goto(linkImg, { waitUntil: 'networkidle2', timeout: 0 })
-            await page.goto(linkImg_URI, { waitUntil: 'networkidle2', timeout: 0 })
+            // page.on('request', async request => {
+            //     if (request.url().includes("m=AjaxDownload&a=open")) {
+            //         request_client({ uri: request.url(), resolveWithFullResponse: true, }).then(response => {
+            //             const request_url = request.url();
+            //             const request_headers = request.headers();
+            //             const request_post_data = request.postData();
+            //             const response_headers = response.headers;
+            //             const response_size = response_headers['content-length'];
+            //             const response_body = response.body;
+            //             result.push({ request_url, request_headers, request_post_data, response_headers, response_size, response_body, });
+            //             console.log(123123213, result);
+            //         }).catch(error => {
+            //             console.error(error);
+            //             request.abort();
+            //         });
+            //     }
+            //     request.continue();
+            // })
+            await page.goto("https://vn.pikbest.com" + linkImg, { waitUntil: 'load', timeout: 0 });
+            await page.waitForResponse(response => {
+                if (response.url().includes("https://zip.pikbest.com")) {
+                    return res.status(200).send(response.url());
+                }
+            });
+            // return res.status(500).send("Cannot download");
+            //await page.screenshot({ path: 'cap6.png' });
+            // console.time(2,'test');
+            // let linkImage_dl = linkImage.replace('//vn.', '//img.');
+            // linkImage_dl = linkImage_dl.replace('.html', '.png');
+            // linkImage_dl = linkImage_dl.replace('qianku-', 'qianku/');
+            // linkImage_dl = linkImage_dl.replace('qiantu-', 'qiantu/');
+
+            // let linkImg_URI = encodeURI(linkImage_dl)
+            // console.log(3,linkImg_URI)
+            // // await page.goto(linkImg, { waitUntil: 'networkidle2', timeout: 0 })
+            // await page.goto(linkImg_URI, { waitUntil: 'networkidle2', timeout: 0 })
+
+
             //await page.waitForFunction("document.querySelector('.down-again').getAttribute('href')",{timeout:0});
-            console.log("OK")
-            download(linkImg_URI, `./image/${title}`, function () {
-                fs.exists('data.json', function(exists) {      
-                    if (exists) {            
-                        console.log("yes file exists");               
-                        fs.readFile('data.json', function readFileCallback(err, data) {
-                            if (err) {
-                                console.log(err);
-                            } else {
-                                obj = JSON.parse(data);
-                                obj.data.push({
-                                    "Link_Html": linkImage,
-                                    "Link_Download": `./image/${title}`
-                                });
-                                var json = JSON.stringify(obj);
-                                fs.writeFile('data.json',json, function(err){
-                                    if(err) return console.log(err);
-                                    console.log('Note added');
-                                });
-                            }
-                        });
-                    } else {
-                        console.log("file not exists");
-                        obj.data.push({
-                            "Link_Html": linkImage,
-                            "Link_Download": `./image/${title}`
-                        });
-                        var json = JSON.stringify(obj);
-                        fs.writeFileSync('data.json', json);
-                    }
-                });
-                res.status(200).send(`./image/${title}`);
-            })
-            console.timeEnd('test');    
+            console.log(4, "OK")
+            // download(linkImg_URI, `./image/${title}`, function () {
+            //     fs.exists('data.json', function (exists) {
+            //         if (exists) {
+            //             console.log("yes file exists");
+            //             fs.readFile('data.json', function readFileCallback(err, data) {
+            //                 if (err) {
+            //                     console.log(err);
+            //                 } else {
+            //                     obj = JSON.parse(data);
+            //                     obj.data.push({
+            //                         "Link_Html": linkImage,
+            //                         "Link_Download": `./image/${title}`
+            //                     });
+            //                     var json = JSON.stringify(obj);
+            //                     fs.writeFile('data.json', json, function (err) {
+            //                         if (err) return console.log(err);
+            //                         console.log('Note added');
+            //                     });
+            //                 }
+            //             });
+            //         } else {
+            //             console.log("file not exists");
+            //             obj.data.push({
+            //                 "Link_Html": linkImage,
+            //                 "Link_Download": `./image/${title}`
+            //             });
+            //             var json = JSON.stringify(obj);
+            //             fs.writeFileSync('data.json', json);
+            //         }
+            //     });
+            //     res.status(200).send(`./image/${title}`);
+            // })
+            // console.timeEnd('test');
         } catch (err) {
             return res.status(500).send({ error: err.message });
         }
         // Store screenshot, do something else
-    });     
+    });
     cluster.queue(linkImage);
 });
 
@@ -165,8 +204,8 @@ var download = function (uri, filename, callback) {
     });
 };
 
-const checkItem = async function(name_file,c_item,t_d,L_I) {
-    const checkdata =await readFile(name_file)
+const checkItem = async function (name_file, c_item, t_d, L_I) {
+    const checkdata = await readFile(name_file)
     obj = JSON.parse(checkdata);
     // for(i=0; i<obj.data.length; i++)
     // {
@@ -179,25 +218,24 @@ const checkItem = async function(name_file,c_item,t_d,L_I) {
     //     }    
     // }
     await obj.data.map(item => {
-        if (item.Link_Html===L_I)
-        {
+        if (item.Link_Html === L_I) {
             c_item = 1;
-            t_d = item.Link_Download;   
-            return [c_item,t_d];
-        } 
+            t_d = item.Link_Download;
+            return [c_item, t_d];
+        }
     });
-    return [c_item,t_d];
-  }
+    return [c_item, t_d];
+}
 
 async function readFile(path) {
-return new Promise((resolve, reject) => {
-    fs.readFile(path, 'utf8', function (err, data) {
-    if (err) {
-        reject(err);
-    }
-    resolve(data);
+    return new Promise((resolve, reject) => {
+        fs.readFile(path, 'utf8', function (err, data) {
+            if (err) {
+                reject(err);
+            }
+            resolve(data);
+        });
     });
-});
 }
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, '127.0.0.1', () => {
