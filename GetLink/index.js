@@ -8,9 +8,13 @@ const { flatten } = require("cheerio/lib/options");
 const { Cluster } = require('puppeteer-cluster');
 const app = express();
 
-
 // var page
 // main()
+var chechCookie = {
+    country:"",
+    user_source_remark:""
+}
+var setcookies = [];
 app.get("/", async (req, res) => {
     res.status(200).send("receive");
 });
@@ -29,32 +33,96 @@ app.get("/test", async (req, res) => {
     res.setHeader('Access-Control-Allow-Credentials', true);
 
     const linkImage = req.query.linkImage;
-    // read file json
-    let count_item = 0;
-    let temp_download = "";
-    var obj = {
-        data: []
-    };
+    const title = `image_${crypto.randomBytes(20).toString('hex')}.jpeg`
+    console.log(1, linkImage);
+    // console.log("title: ",title)
+    //await page.screenshot({ path: 'cap3.png' });
+    await withBrowser(async (browser) => {
+        await withPage(browser)(async (page) => {
+            try {
+                await page.setViewport({ width: 1920, height: 1600 });
+                await page.setDefaultNavigationTimeout(0);
+                const client = await page.target().createCDPSession();
+                const pageCookies = (await client.send('Network.getAllCookies')).cookies;
+                console.log("allnew: ",pageCookies.length)
+                //page =await main(page);
+                console.log("setcookies: ",setcookies)
+                if (pageCookies.length === 0)
+                {
+                    if (setcookies.length === 0)
+                    {
+                        page =await main(page);
+                        console.log("dang nhap xong");
+                    }
+                    else{
+                        await page.setCookie(...setcookies);
+                        console.log("set log: cookie",)
+                        await page.goto('https://vn.pikbest.com/');
+                    }
+                   
+                }
+                // pageCookies.map(item => {
+                //     if (item.name ==="country"){
+                //         if(item.value !== chechCookie.country)
+                //         {
+                //             page =main(page);
+                //         }
+                //     }
+                //     if (item.name ==="user_source_remark"){
+                //         if(item.value !== chechCookie.user_source_remark)
+                //         {
+                //             page =main(page);
+                //         }
+                //     }
+                // })
+                await page.goto(linkImage, { waitUntil: 'load', timeout: 0 });
+                await page.screenshot({ path: 'cap1.png' });
+                //await page.screenshot({ path: 'cap4.png' });
+                let bt ="";
+                let url_check ="";
+                if (await page.$('a.dlbtn.dljpg.ga-click') !== null)
+                {
+                    bt = 'a.dlbtn.dljpg.ga-click';
+                    url_check = "https://zip.pikbest.com";
+                    console.log('bt: ',bt);
+                } 
+                else{
+                    bt = 'a.block-gradient.graHover.dlbtn.ga-click.cate-5';
+                    url_check = "https://proxy-tc.58pic.com";
+                    console.log('bt: ',bt);
+                } 
+                await page.$eval(bt, elem => elem.click());
+                //await page.screenshot({ path: 'cap5.png' });
+                await page.waitForSelector('.download-btn')
+                let linkImg = await page.$eval('.download-btn', anchor => anchor.getAttribute('href'));
+                console.log(2, linkImg);
+        
+                await page.goto("https://vn.pikbest.com" + linkImg, { waitUntil: 'load', timeout: 0 });
+                await page.waitForResponse(response => {
+                    console.log(response.url())
+                    if (response.url().includes(url_check)) {
+                        return res.status(200).send(response.url());
+                    }
+                    
+                });
+                console.log(4, "OK")
+                } catch (err) {
+                    return res.status(500).send({ error: err.message });
+                }
+            });
+    
+        }
+    );
 
-    const cluster = await Cluster.launch({
-        concurrency: Cluster.CONCURRENCY_CONTEXT,
-        maxConcurrency: 2,
-        puppeteerOptions: {
-            headless: true,
-            ignoreHTTPSErrors: true
-        },
-    });
-    await cluster.task(async ({ page, data: url }) => {
-        // const data = await checkItem("data.json",count_item,temp_download,linkImage);
-        // console.log(data)
-        // if (data[0] === 1)
-        // {
-        //     console.log("dung")
-        //     return res.status(200).send(data[1]);
-        // }
-        await page.setViewport({ width: 1920, height: 1600 });
-        await page.setDefaultNavigationTimeout(0);
+    
+});
 
+async function main(page) {
+    try {
+        // const browser = await puppeteer.launch({ headless: true, args: ['--start-maximized', '--no-sandbox', '--disable-setuid-sandbox'] });
+        // page = await browser.newPage();
+        // await page.setCookie(...setcookies);
+        // console.log("set log: cookie",)
         await page.goto('https://vn.pikbest.com/'); // wait until page load
         // click and wait for navigation
         await Promise.all([
@@ -70,126 +138,22 @@ app.get("/test", async (req, res) => {
         await Promise.all([
             page.click('#base-public-rlg-login-btn')
         ]);
+        // Get cookies
+        const client = await page.target().createCDPSession();
+        const cookies = (await client.send('Network.getAllCookies')).cookies;
+        cookies.map(item => {
+            if (item.name==="country")
+            {
+                chechCookie.country = item.value; 
+            }
+            if (item.name==="user_source_remark")
+            {
+                chechCookie.user_source_remark = item.value; 
+            }
+        })
+        setcookies = cookies;
+        console.log("cookie: ", chechCookie);
         await page.waitForNavigation();
-        const title = `image_${crypto.randomBytes(20).toString('hex')}.jpeg`
-        console.log(1, linkImage)
-        // console.log("title: ",title)
-        //await page.screenshot({ path: 'cap3.png' });
-        try {
-            await page.goto(linkImage, { waitUntil: 'load', timeout: 0 });
-            await page.screenshot({ path: 'cap1.png' });
-            //await page.screenshot({ path: 'cap4.png' });
-            await page.$eval('a.dlbtn.dljpg.ga-click', elem => elem.click());
-            //await page.screenshot({ path: 'cap5.png' });
-            await page.waitForSelector('.download-btn')
-            let linkImg = await page.$eval('.download-btn', anchor => anchor.getAttribute('href'));
-            console.log(2, linkImg);
-            // await page.setRequestInterception(true);
-            // page.on('response', response => {
-            //     if (response.url().includes("m=AjaxDownload&a=open"))
-            //       console.log("response code: ", response.json());
-            //       // do something here
-            //   });
-            
-            // page.on('request', async request => {
-            //     if (request.url().includes("m=AjaxDownload&a=open")) {
-            //         request_client({ uri: request.url(), resolveWithFullResponse: true, }).then(response => {
-            //             const request_url = request.url();
-            //             const request_headers = request.headers();
-            //             const request_post_data = request.postData();
-            //             const response_headers = response.headers;
-            //             const response_size = response_headers['content-length'];
-            //             const response_body = response.body;
-            //             result.push({ request_url, request_headers, request_post_data, response_headers, response_size, response_body, });
-            //             console.log(123123213, result);
-            //         }).catch(error => {
-            //             console.error(error);
-            //             request.abort();
-            //         });
-            //     }
-            //     request.continue();
-            // })
-            await page.goto("https://vn.pikbest.com" + linkImg, { waitUntil: 'load', timeout: 0 });
-            await page.waitForResponse(response => {
-                if (response.url().includes("https://zip.pikbest.com")) {
-                    return res.status(200).send(response.url());
-                }
-            });
-            // return res.status(500).send("Cannot download");
-            //await page.screenshot({ path: 'cap6.png' });
-            // console.time(2,'test');
-            // let linkImage_dl = linkImage.replace('//vn.', '//img.');
-            // linkImage_dl = linkImage_dl.replace('.html', '.png');
-            // linkImage_dl = linkImage_dl.replace('qianku-', 'qianku/');
-            // linkImage_dl = linkImage_dl.replace('qiantu-', 'qiantu/');
-
-            // let linkImg_URI = encodeURI(linkImage_dl)
-            // console.log(3,linkImg_URI)
-            // // await page.goto(linkImg, { waitUntil: 'networkidle2', timeout: 0 })
-            // await page.goto(linkImg_URI, { waitUntil: 'networkidle2', timeout: 0 })
-
-
-            //await page.waitForFunction("document.querySelector('.down-again').getAttribute('href')",{timeout:0});
-            console.log(4, "OK")
-            // download(linkImg_URI, `./image/${title}`, function () {
-            //     fs.exists('data.json', function (exists) {
-            //         if (exists) {
-            //             console.log("yes file exists");
-            //             fs.readFile('data.json', function readFileCallback(err, data) {
-            //                 if (err) {
-            //                     console.log(err);
-            //                 } else {
-            //                     obj = JSON.parse(data);
-            //                     obj.data.push({
-            //                         "Link_Html": linkImage,
-            //                         "Link_Download": `./image/${title}`
-            //                     });
-            //                     var json = JSON.stringify(obj);
-            //                     fs.writeFile('data.json', json, function (err) {
-            //                         if (err) return console.log(err);
-            //                         console.log('Note added');
-            //                     });
-            //                 }
-            //             });
-            //         } else {
-            //             console.log("file not exists");
-            //             obj.data.push({
-            //                 "Link_Html": linkImage,
-            //                 "Link_Download": `./image/${title}`
-            //             });
-            //             var json = JSON.stringify(obj);
-            //             fs.writeFileSync('data.json', json);
-            //         }
-            //     });
-            //     res.status(200).send(`./image/${title}`);
-            // })
-            // console.timeEnd('test');
-        } catch (err) {
-            return res.status(500).send({ error: err.message });
-        }
-        // Store screenshot, do something else
-    });
-    cluster.queue(linkImage);
-});
-
-async function main() {
-    try {
-        const browser = await puppeteer.launch({ headless: true, executablePath: '/usr/bin/chromium-browser', args: ['--start-maximized', '--no-sandbox', '--disable-setuid-sandbox'] });
-        page = await browser.newPage();
-        await page.setViewport({ width: 1600, height: 1600 });
-        await page.setDefaultNavigationTimeout(0);
-        await page.goto('https://vi.pngtree.com/'); // wait until page load
-        // click and wait for navigation
-        await Promise.all([
-            page.click('.base-public-login-button')
-        ]);
-        // await page.setViewport({width: 1200, height: 720});
-        await page.type('#base-public-login-email-text', 'mapj8420@yahoo.com');
-        await page.type('#base-public-login-password-text', 'popopo26');
-        // click and wait for navigation
-        await Promise.all([
-            page.click('#base-sub-Login-Btn')
-        ]);
         console.log("done init")
         return page
     }
@@ -198,12 +162,28 @@ async function main() {
     }
 }
 
+const withPage = (browser) => async (fn) => {
+	const page = await browser.newPage();
+	try {
+		return await fn(page);
+	} finally {
+		await page.close();
+	}
+}
+
 var download = function (uri, filename, callback) {
     request.head(uri, function (err, res, body) {
         request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
     });
 };
-
+const withBrowser = async (fn) => {
+	const browser = await puppeteer.launch({/* ... */});
+	try {
+		return await fn(browser);
+	} finally {
+		await browser.close();
+	}
+}
 const checkItem = async function (name_file, c_item, t_d, L_I) {
     const checkdata = await readFile(name_file)
     obj = JSON.parse(checkdata);
@@ -227,6 +207,7 @@ const checkItem = async function (name_file, c_item, t_d, L_I) {
     return [c_item, t_d];
 }
 
+
 async function readFile(path) {
     return new Promise((resolve, reject) => {
         fs.readFile(path, 'utf8', function (err, data) {
@@ -237,6 +218,8 @@ async function readFile(path) {
         });
     });
 }
+
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, '127.0.0.1', () => {
     console.log(`Server started at port: ${PORT}`);
