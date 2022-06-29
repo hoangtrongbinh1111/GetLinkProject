@@ -4,10 +4,12 @@ import axios from 'axios'
 function App() {
   const [linkDownload,setLinkDownload] = useState()
   const [loading,setLoading] = useState(true)
+  const TYPE_PNG = 1;
+  const TYPE_PSD = 2;
   const onSubmit = () => {
     setLoading(false)
     const linkVal = document.getElementById("linkVal").value
-    const reqUrl = `http://127.0.0.1:3001/test?linkImage=${linkVal}`
+    const reqUrl = `http://127.0.0.1:3001/test?linkImage=${linkVal}&typeDownload=${TYPE_PNG}`
     axios.get(reqUrl).then((res) => {
       console.log(res);
       setLinkDownload(res.data)
