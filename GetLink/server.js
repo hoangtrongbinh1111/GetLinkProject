@@ -85,7 +85,7 @@ const loginWeb_PIKBEST = async (page) => {
             // run the task function for the URL
             const data_PIKBEST = {
                 url: req.query.linkImage,
-                type: 1 
+                type: req.query.typeDownload
             }
             const resp = await cluster.execute(data_PIKBEST);
             // respond with the result

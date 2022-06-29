@@ -7,6 +7,11 @@ const INFORMATION_PIKBEST = {
             DOWNLOAD_TYPE: 1,
             DOWNLOAD_NAME: "PNG",
             DOWNLOAD_RESOURCE: "https://zip.pikbest.com"
+        },
+        {
+            DOWNLOAD_TYPE: 2,
+            DOWNLOAD_NAME: "PSD",
+            DOWNLOAD_RESOURCE: "https://zip.pikbest.com"
         }
     ]
 };
