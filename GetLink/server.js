@@ -54,7 +54,12 @@ const loginWeb_PIKBEST = async (page) => {
         if (type !== 0) {
             console.log(1111,type);
             // Chọn nút Tải, phần này thì phụ thuộc vào bên Client yêu cầu tải dạng nào thì mình sẽ tùy biến các nút này
-            await page.$eval('a.dlbtn.dljpg.ga-click', elem => elem.click());
+            let elementClick = "a.dlbtn.dljpg.ga-click";
+            if (type === 2)
+            {
+                elementClick = "a.block-gradient.graHover.dlbtn.ga-click";
+            }
+            await page.$eval(elementClick, elem => elem.click());
             await page.waitForSelector('.download-btn');
             // Lấy link trang chuyển hướng sang Download
             let linkImg = await page.$eval('.download-btn', anchor => anchor.getAttribute('href'));
@@ -62,7 +67,10 @@ const loginWeb_PIKBEST = async (page) => {
             await page.goto(INFORMATION_PIKBEST.DOMAIN + linkImg, { waitUntil: 'load', timeout: 0 });
             // Bắt các response và check xem có resource không?
             const httpResponseWeWaitForPromise = page.waitForResponse((response) => {
-                return response.url().includes("https://zip.pikbest.com");
+                //return response.url().includes("https://zip.pikbest.com");
+                if (response.url().includes("https://proxy-t") || response.url().includes("https://zip.pikbest.com")) {
+                    return response.url();
+                }
             });
             // Lấy thông tin response url cần tìm trả về cho client
             const httpResponseWeWait = await httpResponseWeWaitForPromise;
