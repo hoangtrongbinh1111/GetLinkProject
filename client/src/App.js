@@ -4,8 +4,8 @@ import axios from 'axios'
 function App() {
   const [linkDownload,setLinkDownload] = useState()
   const [loading,setLoading] = useState(true)
-  const TYPE_PNG = 1;
-  const TYPE_PSD = 2;
+  const TYPE_PNG = 0;
+  const TYPE_PSD = 1;
   const onSubmit = () => {
     setLoading(false)
     const linkVal = document.getElementById("linkVal").value

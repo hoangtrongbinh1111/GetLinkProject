@@ -4,15 +4,22 @@ const INFORMATION_PIKBEST = {
     PASSWORD: "popopo26",
     DOWNLOAD: [
         {
-            DOWNLOAD_TYPE: 1,
+            DOWNLOAD_TYPE: 0,
             DOWNLOAD_NAME: "PNG",
-            DOWNLOAD_RESOURCE: "https://zip.pikbest.com"
         },
         {
-            DOWNLOAD_TYPE: 2,
+            DOWNLOAD_TYPE: 1,
             DOWNLOAD_NAME: "PSD",
-            DOWNLOAD_RESOURCE: "https://zip.pikbest.com"
         }
+
+    ],
+    ELEMENT: [
+        "a.dlbtn.dljpg.ga-click",
+        "a.block-gradient.graHover.dlbtn.ga-click"
+    ],
+    DOWNLOAD_RESOURCE: [
+    "https://zip.pikbest.com",
+    "https://proxy-t"
     ]
 };
 module.exports = {
