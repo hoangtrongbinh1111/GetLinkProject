@@ -20,6 +20,10 @@ const INFORMATION_PIKBEST = {
                 "https://proxy-t"
                 ]
         }
+    ],
+    DOWNLOAD_ELEMENT: [
+        "a.dlbtn.dljpg.ga-click",
+        "a.block-gradient.graHover.dlbtn.ga-click"
     ]
 };
 module.exports = {

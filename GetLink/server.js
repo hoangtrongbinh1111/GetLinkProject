@@ -52,9 +52,14 @@ const loginWeb_PIKBEST = async (page) => {
             await loginWeb_PIKBEST(page);
         }
         if (type !== 0) {
-            console.log(1111,type);
             // Chọn nút Tải, phần này thì phụ thuộc vào bên Client yêu cầu tải dạng nào thì mình sẽ tùy biến các nút này
-            await page.$eval(INFORMATION_PIKBEST.DOWNLOAD[type].DOWNLOAD_ELEMENT, elem => elem.click());
+            //await page.$eval(INFORMATION_PIKBEST.DOWNLOAD[type].DOWNLOAD_ELEMENT, elem => elem.click());
+            if ((await page.$(INFORMATION_PIKBEST.DOWNLOAD_ELEMENT[0])) !== null) {
+                // do things with its content
+                await page.$eval(INFORMATION_PIKBEST.DOWNLOAD_ELEMENT[0], elem => elem.click());
+            } else if ((await page.$(INFORMATION_PIKBEST.DOWNLOAD_ELEMENT[1])) !== null) {
+                await page.$eval(INFORMATION_PIKBEST.DOWNLOAD_ELEMENT[1], elem => elem.click());
+            }
             await page.waitForSelector('.download-btn');
             // Lấy link trang chuyển hướng sang Download
             let linkImg = await page.$eval('.download-btn', anchor => anchor.getAttribute('href'));
@@ -62,16 +67,7 @@ const loginWeb_PIKBEST = async (page) => {
             await page.goto(INFORMATION_PIKBEST.DOMAIN + linkImg, { waitUntil: 'load', timeout: 0 });
             // Bắt các response và check xem có resource không?
             const httpResponseWeWaitForPromise = page.waitForResponse((response) => {
-                //return response.url().includes("https://zip.pikbest.com");
-                // INFORMATION_PIKBEST.DOWNLOAD[type].DOWNLOAD_RESOURCE.map(item => {
-                //     if (response.url().includes(item))
-                //     {
-                //         return response.url();
-                //     } 
-                // })
-                if (response.url().includes(INFORMATION_PIKBEST.DOWNLOAD[type].DOWNLOAD_RESOURCE[0])) {
-                    return response.url();
-                }
+                return response.url().includes("https://zip.pikbest.com") || response.url().includes("https://proxy-t");
             });
             // Lấy thông tin response url cần tìm trả về cho client
             const httpResponseWeWait = await httpResponseWeWaitForPromise;
