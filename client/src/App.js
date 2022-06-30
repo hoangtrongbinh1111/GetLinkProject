@@ -9,7 +9,7 @@ function App() {
   const onSubmit = () => {
     setLoading(false)
     const linkVal = document.getElementById("linkVal").value
-    const reqUrl = `http://127.0.0.1:3001/test?linkImage=${linkVal}&typeDownload=${TYPE_PNG}`
+    const reqUrl = `http://127.0.0.1:3001/test?linkImage=${linkVal}&typeDownload=${TYPE_PSD}`
     axios.get(reqUrl).then((res) => {
       console.log(res);
       setLinkDownload(res.data)
