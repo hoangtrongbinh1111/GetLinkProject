@@ -7,7 +7,7 @@ request = require('request');
 const { flatten } = require("cheerio/lib/options");
 const { Cluster } = require('puppeteer-cluster');
 const app = express();
-
+(async () => {
 const cluster = await Cluster.launch({
     concurrency: Cluster.CONCURRENCY_PAGE,
     maxConcurrency: 2,
@@ -82,3 +82,4 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, '127.0.0.1', () => {
     console.log(`Server started at port: ${PORT}`);
 });
+})();

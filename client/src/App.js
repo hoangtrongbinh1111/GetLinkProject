@@ -5,7 +5,7 @@ function App() {
   const [linkDownload,setLinkDownload] = useState()
   const [loading,setLoading] = useState(true)
   const TYPE_PNG = 0;
-  const TYPE_PSD = 1;
+  const TYPE_PSD = 2;
   const onSubmit = () => {
     setLoading(false)
     const linkVal = document.getElementById("linkVal").value

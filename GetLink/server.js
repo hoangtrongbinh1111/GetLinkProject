@@ -55,7 +55,7 @@ const loginWeb_PIKBEST = async (page) => {
             // Chọn nút Tải, phần này thì phụ thuộc vào bên Client yêu cầu tải dạng nào thì mình sẽ tùy biến các nút này
             //await page.$eval(INFORMATION_PIKBEST.DOWNLOAD[type].DOWNLOAD_ELEMENT, elem => elem.click());
             if ((await page.$(INFORMATION_PIKBEST.DOWNLOAD_ELEMENT[0])) !== null) {
-                // do things with its content
+                // do things with its content;
                 await page.$eval(INFORMATION_PIKBEST.DOWNLOAD_ELEMENT[0], elem => elem.click());
             } else if ((await page.$(INFORMATION_PIKBEST.DOWNLOAD_ELEMENT[1])) !== null) {
                 await page.$eval(INFORMATION_PIKBEST.DOWNLOAD_ELEMENT[1], elem => elem.click());
@@ -67,7 +67,8 @@ const loginWeb_PIKBEST = async (page) => {
             await page.goto(INFORMATION_PIKBEST.DOMAIN + linkImg, { waitUntil: 'load', timeout: 0 });
             // Bắt các response và check xem có resource không?
             const httpResponseWeWaitForPromise = page.waitForResponse((response) => {
-                return response.url().includes("https://zip.pikbest.com") || response.url().includes("https://proxy-t");
+                // return response.url().includes("https://zip.pikbest.com") || response.url().includes("https://proxy-t") || response.url().includes("https://proxy-rar");
+                return response.url().includes("https://zip.pikbest.com") || response.url().includes("https://proxy-");
             });
             // Lấy thông tin response url cần tìm trả về cho client
             const httpResponseWeWait = await httpResponseWeWaitForPromise;
