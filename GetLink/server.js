@@ -9,16 +9,12 @@ const loginWeb_PIKBEST = async (page) => {
     await page.setViewport({ width: 1920, height: 1600 });
     await page.setDefaultNavigationTimeout(0);
     // click and wait for navigation
-    await Promise.all([
-        page.click('.login')
-    ]);
-    await page.click('.base-public-rlg-tab-login');
+    await page.$eval(".login", elem => elem.click());
+    await page.$eval(".base-public-rlg-tab-login", elem => elem.click());
     await page.type('#base-public-login-email', INFORMATION_PIKBEST.ACCOUNT);
     await page.type('#base-public-login-password', INFORMATION_PIKBEST.PASSWORD);
     // click and wait for navigation
-    await Promise.all([
-        page.click('#base-public-rlg-login-btn')
-    ]);
+    await page.$eval("#base-public-rlg-login-btn", elem => elem.click());
     await page.waitForNavigation();
     console.log("End Login");
 }
@@ -29,11 +25,12 @@ const loginWeb_PIKBEST = async (page) => {
         concurrency: Cluster.CONCURRENCY_PAGE,
         maxConcurrency: cpuNumber,
         monitor: true,
-        timeout: 60000 // miliseconds
-        // puppeteerOptions: {
-        //     headless: false,
-        //     ignoreHTTPSErrors: true
-        // },
+        timeout: 60000, // miliseconds
+        puppeteerOptions: {
+            //     headless: false,
+            //     ignoreHTTPSErrors: true
+            // args: ['--no-sandbox']
+        }
     });
 
     // Event handler to be called in case of problems
@@ -67,9 +64,9 @@ const loginWeb_PIKBEST = async (page) => {
             await page.goto(INFORMATION_PIKBEST.DOMAIN + linkImg, { waitUntil: 'load', timeout: 0 });
             // Bắt các response và check xem có resource không?
             const httpResponseWeWaitForPromise = page.waitForResponse((response) => {
-                // return response.url().includes("https://zip.pikbest.com") || response.url().includes("https://proxy-t") || response.url().includes("https://proxy-rar");
+                console.log(response.url());
                 return response.url().includes("https://zip.pikbest.com") || response.url().includes("https://proxy-");
-            });
+            }, {timeout: 30*1000});
             // Lấy thông tin response url cần tìm trả về cho client
             const httpResponseWeWait = await httpResponseWeWaitForPromise;
             return httpResponseWeWait;
@@ -102,7 +99,7 @@ const loginWeb_PIKBEST = async (page) => {
         }
     });
 
-    const PORT = process.env.PORT || 3001;
+    const PORT = process.env.PORT || 8686;
     app.listen(PORT, '127.0.0.1', () => {
         console.log(`Server started at port: ${PORT}`);
     });

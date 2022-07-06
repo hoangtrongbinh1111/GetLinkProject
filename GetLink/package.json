@@ -2,9 +2,9 @@
   "name": "redissss",
   "version": "1.0.0",
   "description": "hello",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "api-benchmark": "^1.0.1",
