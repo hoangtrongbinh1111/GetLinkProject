@@ -29,7 +29,7 @@ const loginWeb_PIKBEST = async (page) => {
         puppeteerOptions: {
             //     headless: false,
             //     ignoreHTTPSErrors: true
-            // args: ['--no-sandbox']
+            args: ['--no-sandbox']
         }
     });
 
@@ -40,42 +40,43 @@ const loginWeb_PIKBEST = async (page) => {
 
     // setup the function to be executed for each request
     await cluster.task(async ({ page, data }) => {
-        const { url, type } = data;
-        await page.goto(url, { waitUntil: 'load', timeout: 0 });
-        // Lấy cookie của trang
-        const cookies = await page.cookies();
-        // Nếu không có cookie item thì sẽ tiến hành đăng nhập
-        if (!cookies || !cookies.find(item => item.name === "auth_id")) {
-            await loginWeb_PIKBEST(page);
-        }
-        if (type !== 0) {
-            // Chọn nút Tải, phần này thì phụ thuộc vào bên Client yêu cầu tải dạng nào thì mình sẽ tùy biến các nút này
-            //await page.$eval(INFORMATION_PIKBEST.DOWNLOAD[type].DOWNLOAD_ELEMENT, elem => elem.click());
-            if ((await page.$(INFORMATION_PIKBEST.DOWNLOAD_ELEMENT[0])) !== null) {
-                // do things with its content;
-                await page.$eval(INFORMATION_PIKBEST.DOWNLOAD_ELEMENT[0], elem => elem.click());
-            } else if ((await page.$(INFORMATION_PIKBEST.DOWNLOAD_ELEMENT[1])) !== null) {
-                await page.$eval(INFORMATION_PIKBEST.DOWNLOAD_ELEMENT[1], elem => elem.click());
+        try {
+            const { url } = data;
+            await page.goto(url, { waitUntil: 'load', timeout: 0 });
+            // Lấy cookie của trang
+            const cookies = await page.cookies();
+            // Nếu không có cookie item thì sẽ tiến hành đăng nhập
+            if (!cookies || !cookies.find(item => item.name === "auth_id")) {
+                await loginWeb_PIKBEST(page);
             }
-            await page.waitForSelector('.download-btn');
+            // Chọn nút Tải, phần này thì phụ thuộc vào bên Client yêu cầu tải dạng nào thì mình sẽ tùy biến các nút này
+            await page.$eval(INFORMATION_PIKBEST.DOWNLOAD_ELEMENT, elem => elem.click());
+            await page.waitForSelector('.download-btn', { timeout: 60 * 1000 });
             // Lấy link trang chuyển hướng sang Download
             let linkImg = await page.$eval('.download-btn', anchor => anchor.getAttribute('href'));
             // Đi đến trang Download
             await page.goto(INFORMATION_PIKBEST.DOMAIN + linkImg, { waitUntil: 'load', timeout: 0 });
             // Bắt các response và check xem có resource không?
             const httpResponseWeWaitForPromise = page.waitForResponse((response) => {
-                console.log(response.url());
                 return response.url().includes("https://zip.pikbest.com") || response.url().includes("https://proxy-");
-            }, {timeout: 30*1000});
+            }, { timeout: 30 * 1000 });
             // Lấy thông tin response url cần tìm trả về cho client
             const httpResponseWeWait = await httpResponseWeWaitForPromise;
-            return httpResponseWeWait;
+            return {
+                data: httpResponseWeWait,
+                status: true
+            };
+        }
+        catch (e) {
+            return {
+                status: false,
+                error: e
+            }
         }
     });
     // init
     const init_Page_PIKBEST = {
         url: INFORMATION_PIKBEST.DOMAIN,
-        type: 0 // type for download only
     }
     await cluster.execute(init_Page_PIKBEST);
     // setup server
@@ -91,8 +92,12 @@ const loginWeb_PIKBEST = async (page) => {
                 type: req.query.typeDownload
             }
             const resp = await cluster.execute(data_PIKBEST);
-            // respond with the result
-            res.status(200).send(resp.url());
+            if (resp.status) {
+                res.status(200).send(resp.data.url());
+            }
+            else {
+                res.status(500).send(resp.error);
+            }
         } catch (err) {
             // catch error
             res.end('Error: ' + err.message);
