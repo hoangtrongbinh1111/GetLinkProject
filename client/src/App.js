@@ -11,7 +11,7 @@ function App() {
   const onSubmit = () => {
     setLoading(true)
     const linkVal = document.getElementById("linkVal").value
-    const reqUrl = `${DOMAIN_NAME}:${PORT}/test?linkImage=${linkVal}&typeDownload=${TYPE_PSD}`
+    const reqUrl = `${DOMAIN_NAME}:${PORT}/getFile?linkImage=${linkVal}&pageDownload=${TYPE_PNG}`
     axios.get(reqUrl).then((res) => {
       if (res.status === 200) {
         console.log(res);

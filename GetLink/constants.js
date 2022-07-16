@@ -1,29 +1,30 @@
-const INFORMATION_PIKBEST = {
-    DOMAIN: "https://pikbest.com",
-    ACCOUNT: "jianmy@gmail.com",
-    PASSWORD: "burltable98",
-    DOWNLOAD: [
-        {
-            DOWNLOAD_TYPE: 0,
-            DOWNLOAD_NAME: "PNG",
-            DOWNLOAD_ELEMENT: "a.dlbtn.dljpg.ga-click",
-            DOWNLOAD_RESOURCE: [
-                "https://zip.pikbest.com"
-            ]
-        },
-        {
-            DOWNLOAD_TYPE: 1,
-            DOWNLOAD_NAME: "PSD",
-            DOWNLOAD_ELEMENT: "a.block-gradient.graHover.dlbtn.ga-click",
-            DOWNLOAD_RESOURCE: [
-                "https://zip.pikbest.com",
-                "https://proxy-t"
-            ]
-        }
-    ],
-    DOWNLOAD_ELEMENT: "a.block-gradient.graHover.dlbtn.ga-click"
-    
-};
+const TYPE_PIKBEST = 0;
+const TYPE_PNGTREE = 1;
+const TYPE_FREEPIK = 2;
+const INFORMATION = [
+    {
+        type: TYPE_PIKBEST,
+        domain_name: "https://pikbest.com",
+        account: "jianmy@gmail.com",
+        password: "burltable98",
+        downnload_resource: [
+            "https://zip.pikbest.com",
+            "https://proxy-"
+        ]
+    },
+    // {
+    //     type: TYPE_PNGTREE,
+    //     domain_name: "https://pngtree.com",
+    //     account: "vuongle.201096@gmail.com",
+    //     password: "rollie3011",
+    //     downnload_resource: [
+    //         "https://down-yuantu.pngtree.com",
+    //         "https://proxy-"
+    //     ]
+    // },
+]
 module.exports = {
-    INFORMATION_PIKBEST
+    INFORMATION,
+    TYPE_PIKBEST,
+    TYPE_PNGTREE
 }
