@@ -1,56 +1,32 @@
-const INFORMATION_PIKBEST = {
-    DOMAIN: "https://pikbest.com",
-    ACCOUNT: "jianmy@gmail.com",
-    PASSWORD: "burltable98",
-    DOWNLOAD: [
-        {
-            DOWNLOAD_TYPE: 0,
-            DOWNLOAD_NAME: "PNG",
-            DOWNLOAD_ELEMENT: "a.dlbtn.dljpg.ga-click",
-            DOWNLOAD_RESOURCE: [
-                "https://zip.pikbest.com"
-            ]
-        },
-        {
-            DOWNLOAD_TYPE: 1,
-            DOWNLOAD_NAME: "PSD",
-            DOWNLOAD_ELEMENT: "a.block-gradient.graHover.dlbtn.ga-click",
-            DOWNLOAD_RESOURCE: [
-                "https://zip.pikbest.com",
-                "https://proxy-t"
-            ]
-        }
-    ],
-    DOWNLOAD_ELEMENT: "a.block-gradient.graHover.dlbtn.ga-click"
-    
-};
-const INFORMATION_PNGTREE = {
-    DOMAIN: "https://vi.pngtree.com/",
-    ACCOUNT: "vuongle.201096@gmail.com",
-    PASSWORD: "rollie3011",
-    DOWNLOAD: [
-        {
-            DOWNLOAD_TYPE: 0,
-            DOWNLOAD_NAME: "PNG",
-            DOWNLOAD_ELEMENT: ".btn-downjpg",
-            DOWNLOAD_RESOURCE: [
-                "https://proxy-rar.pngtree.com/"
-            ]
-        },
-        {
-            DOWNLOAD_TYPE: 1,
-            DOWNLOAD_NAME: "EPS",
-            DOWNLOAD_ELEMENT: ".btn-downeps",
-            DOWNLOAD_RESOURCE: [
-                "https://proxy-rar.pngtree.com",
-                "https://proxy-t"
-            ]
-        }
-    ],
-    DOWNLOAD_ELEMENT: ".btn-downeps"
-    
-};
+const TYPE_PIKBEST = 0;
+const TYPE_PNGTREE = 1;
+const TYPE_FREEPIK = 2;
+const INFORMATION = [
+    {
+        type: TYPE_PIKBEST,
+        domain_name: "https://pikbest.com",
+        account: "jianmy@gmail.com",
+        password: "burltable98",
+        cookie: "auth_id",
+        downnload_resource: [
+            "https://zip.pikbest.com",
+            "https://proxy-"
+        ]
+    },
+    {
+        type: TYPE_PNGTREE,
+        domain_name: "https://pngtree.com",
+        account: "vuongle.201096@gmail.com",
+        password: "rollie3011",
+        cookie: "auth_uid",
+        downnload_resource: [
+            "https://down-yuantu.pngtree.com",
+            "https://proxy-"
+        ]
+    },
+]
 module.exports = {
-    INFORMATION_PIKBEST,
-    INFORMATION_PNGTREE
-}
+    INFORMATION,
+    TYPE_PIKBEST,
+    TYPE_PNGTREE
+} 
