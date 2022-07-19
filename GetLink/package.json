@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "api-benchmark": "^1.0.1",
-    "apify": "^2.1.0",
     "axios": "^0.24.0",
     "bluebird": "^3.7.2",
     "chromedriver": "^96.0.0",
